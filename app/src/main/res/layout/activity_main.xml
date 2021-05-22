@@ -13,8 +13,8 @@
         android:text="Social"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:paddingRight="25sp"
-        android:paddingLeft="25sp"
+        android:paddingRight="20sp"
+        android:paddingLeft="20sp"
         android:onClick="change"
         android:background="@drawable/shape"
         />
@@ -29,8 +29,8 @@
         app:layout_constraintTop_toTopOf="parent"
 
         android:background="@drawable/shape"
-        android:paddingRight="25sp"
-        android:paddingLeft="25sp"
+        android:paddingRight="20sp"
+        android:paddingLeft="20sp"
         android:onClick="change"/>
 
     <TextView
@@ -43,12 +43,12 @@
         app:layout_constraintTop_toTopOf="parent"
 
         android:background="@drawable/shape"
-        android:paddingRight="25sp"
-        android:paddingLeft="25sp"
+        android:paddingRight="20sp"
+        android:paddingLeft="20sp"
         android:onClick="change"/>
 
     <TextView
-        android:id="@+id/Educatation"
+        android:id="@+id/Education"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Education"
@@ -56,9 +56,8 @@
         app:layout_constraintStart_toEndOf="@+id/health"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/shape"
-
-        android:paddingRight="25sp"
-        android:paddingLeft="25sp"
+        android:paddingRight="20sp"
+        android:paddingLeft="20sp"
         android:onClick="change"/>
 
 
@@ -68,7 +67,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/progressBar2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/social"
@@ -76,5 +75,24 @@
         app:layout_constraintTop_toBottomOf="@+id/social"
         app:layout_constraintVertical_bias="0.0"
         />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/recyclerView"
+        app:layout_constraintStart_toStartOf="@+id/recyclerView"
+        app:layout_constraintTop_toTopOf="@+id/recyclerView" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

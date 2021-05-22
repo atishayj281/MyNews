@@ -1,5 +1,6 @@
 package android.example.mytube;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -7,13 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,15 +19,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity implements newsItemClicked{
 
@@ -37,6 +36,9 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
     static int techcount = 0;
     static int healthcount = 0;
     static int educount = 0;
+    ProgressBar progressBar;
+    ProgressBar progressBar2;
+    private String OldCategory = "health";
 
     private NewsListAdapter adapter = new NewsListAdapter(MainActivity.this, this);
     RecyclerView recyclerView;
@@ -47,17 +49,37 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fetch("health", healthcount);
+        fetch("health",1);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar2 = findViewById(R.id.progressBar2);
         TextView text1 = findViewById(R.id.health);
         text1.setBackgroundResource(R.drawable.after_click);
         text1.setTextColor(Color.parseColor("White"));
         recyclerView.setAdapter(adapter);
-
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
+            @Override
+            public void onScrollStateChanged(@NonNull @NotNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1)) {
+                     if(OldCategory.equals("Education")){
+                         fetch(OldCategory, educount++);
+                     } else if(OldCategory.equals("Health")){
+                         fetch(OldCategory, healthcount++);
+                     } else if(OldCategory.equals("Social")){
+                         fetch(OldCategory, socialcount++);
+                     } else if(OldCategory.equals("Technology")){
+                         fetch(OldCategory, techcount++);
+                     }
+                }
+            }
+        });
     }
+
+
 
     void fetch(String query, int count){
 
-        String url = "https://newsdata.io/api/1/news?apikey=pub_104fe4c3e8aa6cbaf9e33d0b5968c23e894&country=in&page=" + count + "&q="+ query;
+        String url = "https://newsdata.io/api/1/news?apikey=pub_28413e324db50c203ecd3b0621c189b0ace&q="+query+"&page="+count;
 
         RequestQueue queue = Volley.newRequestQueue(this);
         ArrayList<News> newsArray = new ArrayList<>();
@@ -68,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray newjsonArray = response.getJSONArray("results");
-                            Toast.makeText(main, "" + newjsonArray.length(), Toast.LENGTH_SHORT).show();
                             for(int i = 0; i<10000; i++){
                                 JSONObject newJsonObject = newjsonArray.getJSONObject(i);
                                 News news = new News(newJsonObject.getString("title"),
@@ -84,7 +105,15 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
                             e.printStackTrace();
                         }
                         finally {
-                            adapter.updateNews(newsArray);
+                            if(count == 1){
+                                adapter.updateNews(newsArray);
+                                progressBar.setVisibility(View.GONE);
+                            }else {
+                                progressBar2.setVisibility(View.VISIBLE);
+                                adapter.update(newsArray);
+                                progressBar2.setVisibility(View.GONE);
+
+                            }
                         }
                     }
 
@@ -94,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
                     public void onErrorResponse(VolleyError error) {
                         // TODO: Handle error
                         Toast.makeText(main, "error", Toast.LENGTH_SHORT);
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
         queue.add(jsonObjectRequest);
@@ -104,25 +134,12 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
 
         int id = view.getId();
         TextView text1 = findViewById(id);
-        TextView edu = findViewById(R.id.Educatation);
+        TextView edu = findViewById(R.id.Education);
         TextView head = findViewById(R.id.social);
         TextView health = findViewById(R.id.health);
         TextView tech = findViewById(R.id.Technology);
 
-//        ArrayList<TextView> textViews = new ArrayList<>();
-//        textViews.add(edu);
-//        textViews.add(head);
-//        textViews.add(health);
-//        textViews.add(tech);
-        String a = text1.getText().toString();
-
-//        for(int i= 0; i<4; i++){
-//            if(textViews.get(i).getText().toString().equals(a)){
-//                textViews.get(i).setBackgroundResource(R.drawable.after_click);
-//            }
-//            textViews.get(i).setBackgroundResource(R.drawable.shape);
-//
-//        }
+        String click = text1.getText().toString();
 
         edu.setBackgroundResource(R.drawable.shape);
         edu.setTextColor(Color.parseColor("Black"));
@@ -135,26 +152,41 @@ public class MainActivity extends AppCompatActivity implements newsItemClicked{
         text1.setBackgroundResource(R.drawable.after_click);
         text1.setTextColor(Color.parseColor("White"));
 
-        Toast.makeText(main, a, Toast.LENGTH_SHORT).show();
-        if(a.equals("Technology")){
-            techcount++;
-            fetch(a, techcount);
-        } else if(a.equals("Social")){
-            socialcount++;
-            fetch(a, socialcount);
-        } else if(a.equals("Health")){
-            healthcount++;
-            fetch(a, healthcount);
+        if(click.equals(OldCategory)){
+            fetch(click, 1);
         } else{
-            educount++;
-            fetch(a, educount);
+            if(click.equals("Technology")){
+                techcount = 2;
+                OldCategory = "Technology";
+            } else if(click.equals("Social")){
+                socialcount = 2;
+                OldCategory = "Social";
+            } else if(click.equals("Health")){
+                healthcount = 2;
+                OldCategory = "Health";
+            } else{
+                educount++;
+                OldCategory = "Education";
+            }
+            if(progressBar.getVisibility() == View.GONE){
+                progressBar.setVisibility(View.VISIBLE);
+
+            }
+            fetch(click, 1);
         }
+
+
     }
 
     @Override
     public void onItemClicked(News item) {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
         CustomTabsIntent customTabsIntent = builder.build();
-        customTabsIntent.launchUrl(this, Uri.parse(item.url));
+        if(item.url != null){
+            customTabsIntent.launchUrl(this, Uri.parse(item.url));
+        }
+        else{
+            Toast.makeText(main, "Link is not available", Toast.LENGTH_SHORT).show();
+        }
     }
 }
